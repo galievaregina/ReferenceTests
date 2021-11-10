@@ -1,13 +1,17 @@
 package com.example.myapplication
 
 import android.content.pm.ActivityInfo
+import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.launchActivity
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import org.junit.Assert
+import org.junit.Assert.assertTrue
+import androidx.test.ext.junit.rules.ActivityScenarioRule
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -18,9 +22,19 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 class NavigationTest {
+    @get:Rule
+    val activityScenarioRule = ActivityScenarioRule(MainActivity::class.java)
 
     @Test
-    fun testFragment1() {
+    fun testOpeningFragment1(){
+        launchActivity<MainActivity>()
+        Espresso
+            .onView(withId(R.id.fragment1))
+            .check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun testOpeningFragment2() {
         launchActivity<MainActivity>()
         Espresso
             .onView(withId(R.id.bnToSecond))
@@ -28,7 +42,6 @@ class NavigationTest {
         Espresso
             .onView(withId(R.id.fragment2))
             .check(matches(isDisplayed()))
-
     }
     @Test
     fun testFragment2to1() {
@@ -50,15 +63,24 @@ class NavigationTest {
         Espresso
             .onView(withId(R.id.bnToSecond))
             .perform(click())
-        Espresso
-            .onView(withId(R.id.fragment2))
-            .perform(pressBack())
+        Espresso.pressBack()
         Espresso
             .onView(withId(R.id.fragment1))
             .check(matches(isDisplayed()))
     }
     @Test
-    fun testFragment2to3(){
+    fun testClosingFragment2(){
+        launchActivity<MainActivity>()
+        Espresso
+            .onView(withId(R.id.bnToSecond))
+            .perform(click())
+        Espresso.pressBack()
+        Espresso
+            .onView(withId(R.id.fragment2))
+            .check(doesNotExist())
+    }
+    @Test
+    fun testOpeningFragment3(){
         launchActivity<MainActivity>()
         Espresso
             .onView(withId(R.id.bnToSecond))
@@ -79,13 +101,26 @@ class NavigationTest {
         Espresso
             .onView(withId(R.id.bnToThird))
             .perform(click())
-        Espresso
-            .onView(withId(R.id.fragment3))
-            .perform(pressBack())
+        Espresso.pressBack()
         Espresso
             .onView(withId(R.id.fragment2))
             .check(matches(isDisplayed()))
     }
+    @Test
+    fun testClosingFragment3(){
+        launchActivity<MainActivity>()
+        Espresso
+            .onView(withId(R.id.bnToSecond))
+            .perform(click())
+        Espresso
+            .onView(withId(R.id.bnToThird))
+            .perform(click())
+        Espresso.pressBack()
+        Espresso
+            .onView(withId(R.id.fragment3))
+            .check(doesNotExist())
+    }
+
     @Test
     fun testFragment3to1(){
         launchActivity<MainActivity>()
@@ -102,6 +137,22 @@ class NavigationTest {
             .onView(withId(R.id.fragment1))
             .check(matches(isDisplayed()))
     }
+
+    @Test
+    fun testMoving3to1(){
+        launchActivity<MainActivity>()
+        Espresso
+            .onView(withId(R.id.bnToSecond))
+            .perform(click())
+        Espresso
+            .onView(withId(R.id.bnToThird))
+            .perform(click())
+        Espresso
+            .onView(withId(R.id.bnToFirst))
+            .perform(click())
+        Espresso.pressBackUnconditionally()
+        assertTrue(activityScenarioRule.scenario.state == Lifecycle.State.DESTROYED)
+    }
     @Test
     fun testFragment1toAbout() {
         launchActivity<MainActivity>()
@@ -109,6 +160,7 @@ class NavigationTest {
         Espresso.onView(withId(R.id.activity_about))
             .check(matches(isDisplayed()))
     }
+
     @Test
     fun testFragment2toAbout(){
         launchActivity<MainActivity>()
@@ -136,12 +188,19 @@ class NavigationTest {
     fun testAboutBackFragment1(){
         launchActivity<MainActivity>()
         openAbout()
-        Espresso
-            .onView(withId(R.id.activity_about))
-            .perform(pressBack())
+        Espresso.pressBack()
         Espresso
             .onView(withId(R.id.fragment1))
             .check(matches(isDisplayed()))
+    }
+    @Test
+    fun testClosingAbout1(){
+        launchActivity<MainActivity>()
+        openAbout()
+        Espresso.pressBack()
+        Espresso
+            .onView(withId(R.id.activity_about))
+            .check(doesNotExist())
     }
     @Test
     fun testAboutBackFragment2(){
@@ -150,12 +209,22 @@ class NavigationTest {
             .onView(withId(R.id.bnToSecond))
             .perform(click())
         openAbout()
-        Espresso
-            .onView(withId(R.id.activity_about))
-            .perform(pressBack())
+        Espresso.pressBack()
         Espresso
             .onView(withId(R.id.fragment2))
             .check(matches(isDisplayed()))
+    }
+    @Test
+    fun testClosingAbout2(){
+        launchActivity<MainActivity>()
+        Espresso
+            .onView(withId(R.id.bnToSecond))
+            .perform(click())
+        openAbout()
+        Espresso.pressBack()
+        Espresso
+            .onView(withId(R.id.activity_about))
+            .check(doesNotExist())
     }
     @Test
     fun testAboutBackFragment3(){
@@ -167,12 +236,25 @@ class NavigationTest {
             .onView(withId(R.id.bnToThird))
             .perform(click())
         openAbout()
-        Espresso
-            .onView(withId(R.id.activity_about))
-            .perform(pressBack())
+        Espresso.pressBack()
         Espresso
             .onView(withId(R.id.fragment3))
             .check(matches(isDisplayed()))
+    }
+    @Test
+    fun testClosingAbout3(){
+        launchActivity<MainActivity>()
+        Espresso
+            .onView(withId(R.id.bnToSecond))
+            .perform(click())
+        Espresso
+            .onView(withId(R.id.bnToThird))
+            .perform(click())
+        openAbout()
+        Espresso.pressBack()
+        Espresso
+            .onView(withId(R.id.activity_about))
+            .check(doesNotExist())
     }
     @Test
     fun testChangingOrientation1(){
@@ -228,9 +310,10 @@ class NavigationTest {
             .onView(withId(R.id.activity_about))
             .check(matches(isDisplayed()))
     }
+
     @Test
     fun testStackDepth(){
-        val activityScenario = launchActivity<MainActivity>()
+        launchActivity<MainActivity>()
         Espresso
             .onView(withId(R.id.bnToSecond))
             .perform(click())
@@ -238,21 +321,10 @@ class NavigationTest {
             .onView(withId(R.id.bnToThird))
             .perform(click())
         openAbout()
-        Espresso
-            .onView(withId(R.id.activity_about))
-            .perform(pressBack())
-        Espresso
-            .onView(withId(R.id.fragment3))
-            .perform(pressBack())
-        Espresso
-            .onView(withId(R.id.fragment2))
-            .perform(pressBack())
-        Espresso
-            .onView(withId(R.id.fragment1))
-            .perform(pressBackUnconditionally())
-        var isClosed = false;
-        activityScenario.onActivity { activity ->
-            isClosed = activity.isFinishing }
-        Assert.assertEquals(true, isClosed )
+        Espresso.pressBack()
+        Espresso.pressBack()
+        Espresso.pressBack()
+        Espresso.pressBackUnconditionally()
+        assertTrue(activityScenarioRule.scenario.state == Lifecycle.State.DESTROYED)
     }
 }
