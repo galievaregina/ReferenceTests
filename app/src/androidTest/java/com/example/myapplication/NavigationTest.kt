@@ -4,6 +4,7 @@ import android.content.pm.ActivityInfo
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.launchActivity
 import androidx.test.espresso.Espresso
+import androidx.test.espresso.NoMatchingViewException
 import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
@@ -29,6 +30,9 @@ class NavigationTest {
     fun testOpeningFragment1(){
         launchActivity<MainActivity>()
         Espresso
+            .onView(withId(R.id.bnToSecond))
+            .check(matches(isDisplayed()))
+        Espresso
             .onView(withId(R.id.fragment1))
             .check(matches(isDisplayed()))
     }
@@ -39,6 +43,12 @@ class NavigationTest {
         Espresso
             .onView(withId(R.id.bnToSecond))
             .perform(click())
+        Espresso
+            .onView(withId(R.id.bnToFirst))
+            .check(matches(isDisplayed()))
+        Espresso
+            .onView(withId(R.id.bnToThird))
+            .check(matches(isDisplayed()))
         Espresso
             .onView(withId(R.id.fragment2))
             .check(matches(isDisplayed()))
@@ -55,7 +65,11 @@ class NavigationTest {
         Espresso
             .onView(withId(R.id.fragment1))
             .check(matches(isDisplayed()))
-
+        Espresso
+            .onView(withId(R.id.fragment2))
+            .check(doesNotExist())
+        Espresso.pressBackUnconditionally()
+        assertTrue(activityScenarioRule.scenario.state == Lifecycle.State.DESTROYED)
     }
     @Test
     fun testFragment2back1(){
@@ -67,6 +81,8 @@ class NavigationTest {
         Espresso
             .onView(withId(R.id.fragment1))
             .check(matches(isDisplayed()))
+        Espresso.pressBackUnconditionally()
+        assertTrue(activityScenarioRule.scenario.state == Lifecycle.State.DESTROYED)
     }
     @Test
     fun testClosingFragment2(){
@@ -88,6 +104,12 @@ class NavigationTest {
         Espresso
             .onView(withId(R.id.bnToThird))
             .perform(click())
+        Espresso
+            .onView(withId(R.id.bnToFirst))
+            .check(matches(isDisplayed()))
+        Espresso
+            .onView(withId(R.id.bnToSecond))
+            .check(matches(isDisplayed()))
         Espresso
             .onView(withId(R.id.fragment3))
             .check(matches(isDisplayed()))
@@ -150,6 +172,12 @@ class NavigationTest {
         Espresso
             .onView(withId(R.id.bnToFirst))
             .perform(click())
+        Espresso
+            .onView(withId(R.id.fragment2))
+            .check(doesNotExist())
+        Espresso
+            .onView(withId(R.id.fragment3))
+            .check(doesNotExist())
         Espresso.pressBackUnconditionally()
         assertTrue(activityScenarioRule.scenario.state == Lifecycle.State.DESTROYED)
     }
@@ -263,6 +291,13 @@ class NavigationTest {
             activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         }
         Thread.sleep(1000)
+        activityScenario.onActivity { activity ->
+            activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
+        Thread.sleep(1000)
+        Espresso
+            .onView(withId(R.id.bnToSecond))
+            .check(matches(isDisplayed()))
         Espresso
             .onView(withId(R.id.fragment1))
             .check(matches(isDisplayed()))
@@ -277,6 +312,16 @@ class NavigationTest {
             activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         }
         Thread.sleep(1000)
+        activityScenario.onActivity { activity ->
+            activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
+        Thread.sleep(1000)
+        Espresso
+            .onView(withId(R.id.bnToFirst))
+            .check(matches(isDisplayed()))
+        Espresso
+            .onView(withId(R.id.bnToThird))
+            .check(matches(isDisplayed()))
         Espresso
             .onView(withId(R.id.fragment2))
             .check(matches(isDisplayed()))
@@ -294,6 +339,16 @@ class NavigationTest {
             activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         }
         Thread.sleep(1000)
+        activityScenario.onActivity { activity ->
+            activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
+        Thread.sleep(1000)
+        Espresso
+            .onView(withId(R.id.bnToFirst))
+            .check(matches(isDisplayed()))
+        Espresso
+            .onView(withId(R.id.bnToSecond))
+            .check(matches(isDisplayed()))
         Espresso
             .onView(withId(R.id.fragment3))
             .check(matches(isDisplayed()))
@@ -304,6 +359,10 @@ class NavigationTest {
         openAbout()
         activityScenario.onActivity { activity ->
             activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        }
+        Thread.sleep(1000)
+        activityScenario.onActivity { activity ->
+            activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
         Thread.sleep(1000)
         Espresso
@@ -327,4 +386,121 @@ class NavigationTest {
         Espresso.pressBackUnconditionally()
         assertTrue(activityScenarioRule.scenario.state == Lifecycle.State.DESTROYED)
     }
+    @Test
+    fun testNavigationUp2To1(){
+        launchActivity<MainActivity>()
+        Espresso
+            .onView(withId(R.id.bnToSecond))
+            .perform(click())
+        Espresso
+            .onView(withContentDescription(R.string.nav_app_bar_navigate_up_description))
+            .perform(click())
+        Espresso
+            .onView(withId(R.id.fragment1))
+            .check(matches(isDisplayed()))
+    }
+    @Test
+    fun testNavigationUp3To2(){
+        launchActivity<MainActivity>()
+        Espresso
+            .onView(withId(R.id.bnToSecond))
+            .perform(click())
+        Espresso
+            .onView(withId(R.id.bnToThird))
+            .perform(click())
+        Espresso
+            .onView(withContentDescription(R.string.nav_app_bar_navigate_up_description))
+            .perform(click())
+        Espresso
+            .onView(withId(R.id.fragment2))
+            .check(matches(isDisplayed()))
+    }
+    @Test
+    fun testNavigationUp3To1(){
+        launchActivity<MainActivity>()
+        Espresso
+            .onView(withId(R.id.bnToSecond))
+            .perform(click())
+        Espresso
+            .onView(withId(R.id.bnToThird))
+            .perform(click())
+        Espresso
+            .onView(withContentDescription(R.string.nav_app_bar_navigate_up_description))
+            .perform(click())
+        Espresso
+            .onView(withContentDescription(R.string.nav_app_bar_navigate_up_description))
+            .perform(click())
+        Espresso
+            .onView(withId(R.id.fragment1))
+            .check(matches(isDisplayed()))
+    }
+    @Test
+    fun testNavigationUpAboutTo1(){
+        launchActivity<MainActivity>()
+        openAbout()
+        Espresso
+            .onView(withContentDescription(R.string.nav_app_bar_navigate_up_description))
+            .perform(click())
+        Espresso
+            .onView(withId(R.id.fragment1))
+            .check(matches(isDisplayed()))
+    }
+    @Test
+    fun testNavigationUpAboutTo2(){
+        launchActivity<MainActivity>()
+        Espresso
+            .onView(withId(R.id.bnToSecond))
+            .perform(click())
+        openAbout()
+        Espresso
+            .onView(withContentDescription(R.string.nav_app_bar_navigate_up_description))
+            .perform(click())
+        Espresso
+            .onView(withId(R.id.fragment2))
+            .check(matches(isDisplayed()))
+    }
+    @Test
+    fun testNavigationUpAboutTo3(){
+        launchActivity<MainActivity>()
+        Espresso
+            .onView(withId(R.id.bnToSecond))
+            .perform(click())
+        Espresso
+            .onView(withId(R.id.bnToThird))
+            .perform(click())
+        openAbout()
+        Espresso
+            .onView(withContentDescription(R.string.nav_app_bar_navigate_up_description))
+            .perform(click())
+        Espresso
+            .onView(withId(R.id.fragment3))
+            .check(matches(isDisplayed()))
+    }
+    @Test
+    fun testAllNavigationUp(){
+        launchActivity<MainActivity>()
+        Espresso
+            .onView(withId(R.id.bnToSecond))
+            .perform(click())
+        Espresso
+            .onView(withId(R.id.bnToThird))
+            .perform(click())
+        openAbout()
+        Espresso
+            .onView(withContentDescription(R.string.nav_app_bar_navigate_up_description))
+            .perform(click())
+        Espresso
+            .onView(withContentDescription(R.string.nav_app_bar_navigate_up_description))
+            .perform(click())
+        Espresso
+            .onView(withContentDescription(R.string.nav_app_bar_navigate_up_description))
+            .perform(click())
+        try {
+            Espresso
+                .onView(withContentDescription(R.string.nav_app_bar_navigate_up_description))
+                .perform(click())
+        } catch (ignored: NoMatchingViewException) {
+        }
+    }
+
 }
